@@ -18,6 +18,8 @@ impl DecoratorCoverageVisitor {
 impl VisitMut for DecoratorCoverageVisitor {
     fn visit_mut_call_expr(&mut self, call: &mut CallExpr) {
         if is_ts_decorate_call(call) {
+            let is_constructor = is_constructor_decorate(call);
+
             if let Some(ExprOrSpread { expr, .. }) = call.args.first_mut() {
                 if let Expr::Array(array) = &mut **expr {
                     if self.config.strip_metadata.unwrap_or(false) {
@@ -30,6 +32,12 @@ impl VisitMut for DecoratorCoverageVisitor {
 
                     if self.config.unwrap_type_arrows.unwrap_or(true) {
                         unwrap_type_arrow_props(&mut array.elems);
+                    }
+
+                    if self.config.simplify_metadata_typeofs.unwrap_or(true)
+                        && !is_constructor
+                    {
+                        simplify_metadata_typeof_guards(&mut array.elems);
                     }
                 }
             }
