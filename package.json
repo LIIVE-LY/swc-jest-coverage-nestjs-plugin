@@ -20,5 +20,17 @@
     "coverage",
     "decorators"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LIIVE-LY/swc-jest-coverage-nestjs-plugin.git"
+  },
+  "author": "Liively",
+  "bugs": {
+    "url": "https://github.com/LIIVE-LY/swc-jest-coverage-nestjs-plugin/issues"
+  },
+  "homepage": "https://github.com/LIIVE-LY/swc-jest-coverage-nestjs-plugin#readme"
 }
