@@ -1,3 +1,4 @@
+use swc_core::common::DUMMY_SP;
 use swc_core::ecma::ast::*;
 
 use crate::detection::*;
@@ -91,5 +92,57 @@ fn is_type_key(key: &PropName) -> bool {
         PropName::Ident(id) => id.sym.as_ref() == "type",
         PropName::Str(s) => &*s.value == "type",
         _ => false,
+    }
+}
+
+/// Simplify typeof guard conditionals inside `_ts_metadata("design:paramtypes", ...)` arguments.
+///
+/// Only targets `design:paramtypes` — other keys like `design:type` are preserved
+/// because `@nestjs/mongoose` `@Prop()` uses `design:type` to infer schema types.
+///
+/// Before: `_ts_metadata("design:paramtypes", [typeof X === "undefined" ? Object : X])`
+/// After:  `_ts_metadata("design:paramtypes", [Object])`
+pub fn simplify_metadata_typeof_guards(elems: &mut Vec<Option<ExprOrSpread>>) {
+    for elem in elems.iter_mut().flatten() {
+        if let Expr::Call(call) = &mut *elem.expr {
+            if !is_ts_metadata_call(call) {
+                continue;
+            }
+
+            if !is_paramtypes_metadata(call) {
+                continue;
+            }
+
+            for arg in call.args.iter_mut().skip(1) {
+                simplify_typeofs_in_expr(&mut arg.expr);
+            }
+        }
+    }
+}
+
+fn is_paramtypes_metadata(call: &CallExpr) -> bool {
+    matches!(
+        call.args.first(),
+        Some(ExprOrSpread { expr, .. })
+            if matches!(&**expr, Expr::Lit(Lit::Str(s)) if &*s.value == "design:paramtypes")
+    )
+}
+
+fn simplify_typeofs_in_expr(expr: &mut Box<Expr>) {
+    match &**expr {
+        Expr::Cond(cond) if is_typeof_guard_conditional(cond) => {
+            *expr = Box::new(Expr::Ident(Ident::new_no_ctxt(
+                "Object".into(),
+                DUMMY_SP,
+            )));
+        }
+        Expr::Array(_) => {
+            if let Expr::Array(array) = &mut **expr {
+                for elem in array.elems.iter_mut().flatten() {
+                    simplify_typeofs_in_expr(&mut elem.expr);
+                }
+            }
+        }
+        _ => {}
     }
 }
