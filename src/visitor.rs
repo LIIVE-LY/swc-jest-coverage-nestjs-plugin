@@ -20,7 +20,7 @@ impl VisitMut for DecoratorCoverageVisitor {
         if is_ts_decorate_call(call) {
             if let Some(ExprOrSpread { expr, .. }) = call.args.first_mut() {
                 if let Expr::Array(array) = &mut **expr {
-                    if self.config.strip_metadata.unwrap_or(true) {
+                    if self.config.strip_metadata.unwrap_or(false) {
                         strip_metadata_calls(&mut array.elems);
                     }
 
