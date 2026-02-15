@@ -3,6 +3,10 @@ name = "swc-jest-coverage-nestjs-plugin"
 version = "0.1.0"
 edition = "2021"
 description = "SWC plugin to fix NestJS decorator coverage reporting with Istanbul/Jest"
+authors = ["Liively Pty Ltd"]
+license = "MIT"
+repository = "https://github.com/LIIVE-LY/swc-jest-coverage-nestjs-plugin"
+homepage = "https://github.com/LIIVE-LY/swc-jest-coverage-nestjs-plugin#readme"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
