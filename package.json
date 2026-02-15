@@ -1,6 +1,6 @@
 {
   "name": "@liively/swc-jest-coverage-nestjs-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "SWC plugin to transform NestJS decorator metadata for accurate Jest coverage",
   "main": "swc_jest_coverage_nestjs_plugin.wasm",
   "files": [
