@@ -1,0 +1,24 @@
+{
+  "name": "@liively/swc-jest-coverage-nestjs-plugin",
+  "version": "0.1.0",
+  "description": "SWC plugin to transform NestJS decorator metadata for accurate Jest coverage",
+  "main": "swc_jest_coverage_nestjs_plugin.wasm",
+  "files": [
+    "swc_jest_coverage_nestjs_plugin.wasm"
+  ],
+  "scripts": {
+    "build": "bash build.sh",
+    "build:dev": "cargo build --target wasm32-wasip1 && cp target/wasm32-wasip1/debug/swc_jest_coverage_nestjs_plugin.wasm .",
+    "build:release": "bash build.sh",
+    "prepublishOnly": "bash build.sh"
+  },
+  "keywords": [
+    "swc",
+    "plugin",
+    "nestjs",
+    "jest",
+    "coverage",
+    "decorators"
+  ],
+  "license": "MIT"
+}
