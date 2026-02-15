@@ -8,13 +8,13 @@ pub mod visitor;
 
 use visitor::DecoratorCoverageVisitor;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     /// Unwrap simple arrow functions in decorator type params (default: true)
     /// e.g., `type: () => String` -> `type: String`
     pub unwrap_type_arrows: Option<bool>,
-    /// Strip _ts_metadata calls from _ts_decorate arrays (default: true)
+    /// Strip _ts_metadata calls from _ts_decorate arrays (default: false)
     /// Removes design:type, design:paramtypes, design:returntype
     pub strip_metadata: Option<bool>,
     /// Unwrap arrow function arguments to decorator calls (default: true)
@@ -26,7 +26,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             unwrap_type_arrows: Some(true),
-            strip_metadata: Some(true),
+            strip_metadata: Some(false),
             unwrap_decorator_arrows: Some(true),
         }
     }
