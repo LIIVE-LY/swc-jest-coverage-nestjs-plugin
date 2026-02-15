@@ -20,6 +20,9 @@ pub struct Config {
     /// Unwrap arrow function arguments to decorator calls (default: true)
     /// e.g., `ResolveField(() => String)` -> `ResolveField(String)`
     pub unwrap_decorator_arrows: Option<bool>,
+    /// Simplify typeof guard conditionals inside _ts_metadata args to `Object` (default: true)
+    /// e.g., `typeof Express === "undefined" || ... ? Object : Express.Multer.File` -> `Object`
+    pub simplify_metadata_typeofs: Option<bool>,
 }
 
 impl Default for Config {
@@ -28,6 +31,7 @@ impl Default for Config {
             unwrap_type_arrows: Some(true),
             strip_metadata: Some(false),
             unwrap_decorator_arrows: Some(true),
+            simplify_metadata_typeofs: Some(true),
         }
     }
 }
