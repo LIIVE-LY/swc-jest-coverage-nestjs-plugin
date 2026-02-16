@@ -36,6 +36,8 @@ module.exports = {
                 // All options shown with their defaults:
                 // unwrapTypeArrows: true,
                 // unwrapDecoratorArrows: true,
+                // simplifyMetadataTypeofs: true,
+                // simplifyDesignTypeTypeofs: false,
                 // stripMetadata: false,
               }],
             ],
@@ -58,13 +60,17 @@ module.exports = {
 |---|---|---|---|
 | `unwrapTypeArrows` | `boolean` | `true` | Unwrap `type: () => String` → `type: String` in decorator option objects |
 | `unwrapDecoratorArrows` | `boolean` | `true` | Unwrap `ResolveField(() => String)` → `ResolveField(String)` in decorator call arguments |
+| `simplifyMetadataTypeofs` | `boolean` | `true` | Simplify typeof guard conditionals in `design:paramtypes` metadata to `Object` |
+| `simplifyDesignTypeTypeofs` | `boolean` | `false` | Simplify typeof guard conditionals in `design:type` metadata to `Object` |
 | `stripMetadata` | `boolean` | `false` | Remove `_ts_metadata("design:type", ...)` calls from `_ts_decorate` arrays |
 
 > **Note:** `stripMetadata` defaults to `false` because `@nestjs/mongoose` depends on `design:type` metadata at runtime for schema type inference. Only enable it if your project does not use Mongoose (or any other library that reads `design:type` metadata).
 
+> **Note:** `simplifyDesignTypeTypeofs` defaults to `false` because `@nestjs/mongoose` `@Prop()` uses `design:type` to infer schema types at runtime. Enable it only if your `design:type` metadata contains member-expression types (e.g. `mongoose.Types.ObjectId`) that generate phantom branch coverage from always-true typeof guards.
+
 ## How It Works
 
-The plugin applies up to three transforms on `_ts_decorate([ ... ])` call sites:
+The plugin applies up to four transforms on `_ts_decorate([ ... ])` call sites:
 
 ### 1. Unwrap decorator arrow arguments (`unwrapDecoratorArrows`)
 
@@ -86,7 +92,31 @@ _ts_param(0, (0, _graphql.Args)('id', { type: () => String }))
 _ts_param(0, (0, _graphql.Args)('id', { type: String }))
 ```
 
-### 3. Strip metadata calls (`stripMetadata`)
+### 3. Simplify `design:paramtypes` typeof guards (`simplifyMetadataTypeofs`)
+
+```js
+// Before — Istanbul counts the ternary as 2 branches, only 1 is covered
+_ts_metadata("design:paramtypes", [
+    typeof Express === "undefined" || typeof Express.Multer === "undefined" || typeof Express.Multer.File === "undefined" ? Object : Express.Multer.File
+])
+
+// After — no phantom branch target
+_ts_metadata("design:paramtypes", [Object])
+```
+
+### 4. Simplify `design:type` typeof guards (`simplifyDesignTypeTypeofs`)
+
+```js
+// Before — same phantom branch problem for member-expression types
+_ts_metadata("design:type", typeof mongoose === "undefined" || typeof mongoose.Types === "undefined" || typeof mongoose.Types.ObjectId === "undefined" ? Object : mongoose.Types.ObjectId)
+
+// After
+_ts_metadata("design:type", Object)
+```
+
+> **Warning:** This replaces the runtime type with `Object`, which may break libraries that read `design:type` metadata (e.g. `@nestjs/mongoose` `@Prop()`). Only enable this if you know your `design:type` values are not used at runtime, or if the affected properties already specify the type explicitly in the decorator options.
+
+### 5. Strip metadata calls (`stripMetadata`)
 
 ```js
 // Before
