@@ -18,7 +18,7 @@ opt-level = "s"
 strip = "symbols"
 
 [dependencies]
-swc_core = { version = "50", features = [
+swc_core = { version = "56", features = [
     "ecma_plugin_transform",
     "ecma_utils",
     "ecma_visit",
@@ -30,5 +30,5 @@ serde_json = "1"
 glob-match = "0.2"
 
 [dev-dependencies]
-swc_core = { version = "50", features = ["testing_transform", "ecma_parser"] }
+swc_core = { version = "56", features = ["testing_transform", "ecma_parser"] }
 testing = "19"
