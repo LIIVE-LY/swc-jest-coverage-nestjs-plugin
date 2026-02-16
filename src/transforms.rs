@@ -103,13 +103,31 @@ fn is_type_key(key: &PropName) -> bool {
 /// Before: `_ts_metadata("design:paramtypes", [typeof X === "undefined" ? Object : X])`
 /// After:  `_ts_metadata("design:paramtypes", [Object])`
 pub fn simplify_metadata_typeof_guards(elems: &mut Vec<Option<ExprOrSpread>>) {
+    simplify_typeof_guards_for_metadata(elems, is_paramtypes_metadata);
+}
+
+/// Simplify typeof guard conditionals inside `_ts_metadata("design:type", ...)` arguments.
+///
+/// Opt-in transform for `design:type` metadata containing member-expression types
+/// (e.g. `mongoose.Types.ObjectId`) that generate always-true typeof guard chains.
+///
+/// Before: `_ts_metadata("design:type", typeof mongoose === "undefined" || ... ? Object : mongoose.Types.ObjectId)`
+/// After:  `_ts_metadata("design:type", Object)`
+pub fn simplify_design_type_typeof_guards(elems: &mut Vec<Option<ExprOrSpread>>) {
+    simplify_typeof_guards_for_metadata(elems, is_design_type_metadata);
+}
+
+fn simplify_typeof_guards_for_metadata(
+    elems: &mut Vec<Option<ExprOrSpread>>,
+    key_matches: fn(&CallExpr) -> bool,
+) {
     for elem in elems.iter_mut().flatten() {
         if let Expr::Call(call) = &mut *elem.expr {
             if !is_ts_metadata_call(call) {
                 continue;
             }
 
-            if !is_paramtypes_metadata(call) {
+            if !key_matches(call) {
                 continue;
             }
 
@@ -121,10 +139,18 @@ pub fn simplify_metadata_typeof_guards(elems: &mut Vec<Option<ExprOrSpread>>) {
 }
 
 fn is_paramtypes_metadata(call: &CallExpr) -> bool {
+    metadata_key_equals(call, "design:paramtypes")
+}
+
+fn is_design_type_metadata(call: &CallExpr) -> bool {
+    metadata_key_equals(call, "design:type")
+}
+
+fn metadata_key_equals(call: &CallExpr, key: &str) -> bool {
     matches!(
         call.args.first(),
         Some(ExprOrSpread { expr, .. })
-            if matches!(&**expr, Expr::Lit(Lit::Str(s)) if &*s.value == "design:paramtypes")
+            if matches!(&**expr, Expr::Lit(Lit::Str(s)) if &*s.value == key)
     )
 }
 

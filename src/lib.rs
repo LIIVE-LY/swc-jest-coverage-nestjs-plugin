@@ -23,6 +23,9 @@ pub struct Config {
     /// Simplify typeof guard conditionals inside _ts_metadata args to `Object` (default: true)
     /// e.g., `typeof Express === "undefined" || ... ? Object : Express.Multer.File` -> `Object`
     pub simplify_metadata_typeofs: Option<bool>,
+    /// Simplify typeof guard conditionals inside _ts_metadata("design:type", ...) args (default: false)
+    /// Only enable if your design:type metadata contains member-expression types (e.g. mongoose.Types.ObjectId)
+    pub simplify_design_type_typeofs: Option<bool>,
 }
 
 impl Default for Config {
@@ -32,6 +35,7 @@ impl Default for Config {
             strip_metadata: Some(false),
             unwrap_decorator_arrows: Some(true),
             simplify_metadata_typeofs: Some(true),
+            simplify_design_type_typeofs: Some(false),
         }
     }
 }

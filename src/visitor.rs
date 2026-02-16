@@ -39,6 +39,12 @@ impl VisitMut for DecoratorCoverageVisitor {
                     {
                         simplify_metadata_typeof_guards(&mut array.elems);
                     }
+
+                    if self.config.simplify_design_type_typeofs.unwrap_or(false)
+                        && !is_constructor
+                    {
+                        simplify_design_type_typeof_guards(&mut array.elems);
+                    }
                 }
             }
         }
