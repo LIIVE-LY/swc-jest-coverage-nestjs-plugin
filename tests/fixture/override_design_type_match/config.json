@@ -1,0 +1,9 @@
+{
+  "simplifyDesignTypeTypeofs": false,
+  "overrides": [
+    {
+      "files": ["**/override_design_type_match/**"],
+      "config": { "simplifyDesignTypeTypeofs": true }
+    }
+  ]
+}
