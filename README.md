@@ -66,7 +66,53 @@ module.exports = {
 
 > **Note:** `stripMetadata` defaults to `false` because `@nestjs/mongoose` depends on `design:type` metadata at runtime for schema type inference. Only enable it if your project does not use Mongoose (or any other library that reads `design:type` metadata).
 
-> **Note:** `simplifyDesignTypeTypeofs` defaults to `false` because `@nestjs/mongoose` `@Prop()` uses `design:type` to infer schema types at runtime. Enable it only if your `design:type` metadata contains member-expression types (e.g. `mongoose.Types.ObjectId`) that generate phantom branch coverage from always-true typeof guards.
+> **Note:** `simplifyDesignTypeTypeofs` defaults to `false` because `@nestjs/mongoose` `@Prop()` uses `design:type` to infer schema types at runtime. Enable it only if your `design:type` metadata contains member-expression types (e.g. `mongoose.Types.ObjectId`) that generate phantom branch coverage from always-true typeof guards. For mixed codebases, use [per-file overrides](#per-file-overrides) to enable this selectively.
+
+### Per-File Overrides
+
+You can apply different options to different files using `overrides`, similar to ESLint's override syntax. Each override specifies glob patterns and config options to apply when a file matches:
+
+```js
+// jest.config.js
+module.exports = {
+  transform: {
+    '^.+\\.tsx?$': [
+      '@swc/jest',
+      {
+        jsc: {
+          experimental: {
+            plugins: [
+              ['@liively/swc-jest-coverage-nestjs-plugin', {
+                simplifyDesignTypeTypeofs: false,
+                overrides: [
+                  {
+                    files: [
+                      '**/venue.model*',
+                      '**/user.model*',
+                      '**/role.model*',
+                    ],
+                    config: {
+                      simplifyDesignTypeTypeofs: true,
+                    },
+                  },
+                ],
+              }],
+            ],
+          },
+        },
+      },
+    ],
+  },
+};
+```
+
+**Behavior:**
+
+- Glob syntax supports `*`, `**`, `{a,b}`, and `?` patterns
+- Later overrides take precedence when multiple rules match the same file
+- Only specified fields in an override are applied; unspecified fields inherit from the base config
+- If SWC doesn't provide a filename (unlikely in practice), overrides are skipped and the base config is used
+- Windows backslash paths are normalized to forward slashes before matching
 
 ## How It Works
 
