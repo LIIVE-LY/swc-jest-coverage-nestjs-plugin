@@ -1,6 +1,6 @@
 [package]
 name = "swc-jest-coverage-nestjs-plugin"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 description = "SWC plugin to fix NestJS decorator coverage reporting with Istanbul/Jest"
 authors = ["Liively Pty Ltd"]
