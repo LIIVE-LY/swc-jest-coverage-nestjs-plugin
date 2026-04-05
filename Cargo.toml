@@ -31,4 +31,4 @@ glob-match = "0.2"
 
 [dev-dependencies]
 swc_core = { version = "56", features = ["testing_transform", "ecma_parser"] }
-testing = "19"
+testing = "22"
