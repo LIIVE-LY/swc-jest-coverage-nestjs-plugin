@@ -62,7 +62,7 @@ jobs:
         run: npm publish --access public --provenance
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: swc_jest_coverage_nestjs_plugin.wasm
           generate_release_notes: true
